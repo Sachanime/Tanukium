@@ -1,0 +1,18 @@
+{
+  "name": "tanukium",
+  "version": "2.2.4",
+  "description": "App for Tanuki Garden",
+  "main": "tanuki.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sachanime",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/rest": "^1.1.0",
+    "aternode": "^1.1.3",
+    "discord.js": "^14.6.0",
+    "mongoose": "^6.12.6",
+    "mysql": "^2.18.1"
+  }
+}
