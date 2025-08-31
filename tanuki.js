@@ -2,7 +2,7 @@ const { Client, EmbedBuilder, MessageType, ActionRowBuilder, ButtonBuilder, Butt
 const { Low } = require("lowdb")
 const { JSONFile } = require("lowdb/node")
 
-const ID = require("./ID-beta.json")
+const ID = require("./ID.json")
 const Token = require("./token.json")
 const package = require("./package.json")
 const packagelock = require("./package-lock.json")
@@ -17,7 +17,7 @@ var asker = "Undefined"
 
 async function startBot() {
 
-    client.login(Token.Bêtanukium)
+    client.login(Token.Tanukium)
     await db.read()
 
     const mainDoc = db.data.mainDoc.find(d => d.name == "countingSystem")
