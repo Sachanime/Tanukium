@@ -19,6 +19,8 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            rm ~/.pm2/logs/tanuki-error.log
+            rm ~/.pm2/logs/tanuki-out.log
             cd ~/BOT/Tanukium
             git pull origin main
             npm install
