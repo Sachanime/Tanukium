@@ -8,7 +8,7 @@ const package = require("./package.json")
 const packagelock = require("./package-lock.json")
 
 const client = new Client({ intents: [3276799] })
-const adapter = new JSONFile("db.json")
+const adapter = new JSONFile(ID.DB.Main)
 const db = new Low(adapter, { users: [], mainDoc: [] })
 
 var count = 0
@@ -42,6 +42,21 @@ async function startBot() {
         console.log("   ")
 
         console.log("Tanukium : 🟢 - Connected")
+
+        const infosEmbed = new EmbedBuilder()
+        .setTitle("Tanukium")
+        .setColor("Blue")
+        .setThumbnail(client.user.avatarURL())
+        .setDescription(
+            package.description + "\n\n" +
+            "__**Versions**__" + "\n\n" +
+            "Tanukium : " + package.version + "\n\n" +
+            "Node.js : " + process.version + "\n\n" +
+            "Discord.js : " + packagelock.packages["node_modules/discord.js"].version + "\n" +
+            "lowdb : " + packagelock.packages["node_modules/lowdb"].version
+        )
+
+        client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels.Staff).send({ embeds: [infosEmbed] })
 
         count = mainDoc.count
         counter = mainDoc.counter
@@ -160,7 +175,7 @@ async function startBot() {
                 package.description + "\n\n" +
                 "__**Versions**__" + "\n\n" +
                 "Tanukium : " + package.version + "\n\n" +
-                "Node.js : " + process.version + "\n" +
+                "Node.js : " + process.version + "\n\n" +
                 "Discord.js : " + packagelock.packages["node_modules/discord.js"].version + "\n" +
                 "lowdb : " + packagelock.packages["node_modules/lowdb"].version
             )
