@@ -6,6 +6,7 @@ const ID = require("./ID.json")
 const Token = require("./token.json")
 const package = require("./package.json")
 const packagelock = require("./package-lock.json")
+const { createInfosEmbed, embedErrorCount, embedErrorUser, createBugReportEmbed, createBugReportedEmbed, createSetCountEmbed, createNotCamperEmbed, campEmbed, replySendEmbed, askWaitEmbed, askOpenDMEmbed, askCloseDMEmbed, createAskDMEmbed, createAskSendEmbed, noAskEmbed, createAskYesEmbed, createAskNoEmbed, DBUpdateEmbed } = require("./embeds.js")
 
 const client = new Client({ intents: [3276799] })
 const adapter = new JSONFile(ID.DB.Main)
@@ -43,19 +44,7 @@ async function startBot() {
 
         console.log("Tanukium : 🟢 - Connected")
 
-        const infosEmbed = new EmbedBuilder()
-        .setTitle("Tanukium")
-        .setColor("Blue")
-        .setThumbnail(client.user.avatarURL())
-        .setDescription(
-            package.description + "\n\n" +
-            "__**Versions**__" + "\n\n" +
-            "Tanukium : " + package.version + "\n\n" +
-            "Node.js : " + process.version + "\n\n" +
-            "Discord.js : " + packagelock.packages["node_modules/discord.js"].version + "\n" +
-            "lowdb : " + packagelock.packages["node_modules/lowdb"].version
-        )
-
+        const infosEmbed = createInfosEmbed(client, package, packagelock)
         client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels.Staff).send({ embeds: [infosEmbed] })
 
         count = mainDoc.count
@@ -92,16 +81,6 @@ async function startBot() {
         if(message.type == MessageType.ChannelPinnedMessage) { return }
 
         //Counting System
-        const embedErrorCount = new EmbedBuilder()
-        .setTitle("STOP")
-        .setColor("ff0000")
-        .setDescription("Vous avez sautez un nombre, recommencez depuis le début")
-
-        const embedErrorUser = new EmbedBuilder()
-        .setTitle("STOP")
-        .setColor("ff0000")
-        .setDescription("Vous n'avez pas le droit de jouer tout seul, recommencez depuis le début")
-
         if(message.channel.id == ID.Channels.Counting){
 
             var regex = /^[0-9]{0,100}$/
@@ -167,19 +146,7 @@ async function startBot() {
         //Infos
         if(commandName == "infos") {
 
-            const infosEmbed = new EmbedBuilder()
-            .setTitle("Tanukium")
-            .setColor("Blue")
-            .setThumbnail(client.user.avatarURL())
-            .setDescription(
-                package.description + "\n\n" +
-                "__**Versions**__" + "\n\n" +
-                "Tanukium : " + package.version + "\n\n" +
-                "Node.js : " + process.version + "\n\n" +
-                "Discord.js : " + packagelock.packages["node_modules/discord.js"].version + "\n" +
-                "lowdb : " + packagelock.packages["node_modules/lowdb"].version
-            )
-
+            const infosEmbed = createInfosEmbed(client, package, packagelock)
             interaction.reply({ embeds: [infosEmbed] })
 
         }
@@ -187,18 +154,8 @@ async function startBot() {
         else if(commandName == "bug"){
 
             const string = interaction.options.getString("bug")
-
-            const bugReportEmbed = new EmbedBuilder()
-            .setTitle("Bug Report")
-            .setDescription(string)
-            .setColor("Red")
-            .setFooter({ text: interaction.user.username, iconURL: interaction.user.avatarURL() })
-
-            const bugReportedEmbed = new EmbedBuilder()
-            .setTitle("Bug Report")
-            .setDescription("Votre bug a bien été transmis à <@" + ID.Clients.Sacha + ">")
-            .setColor("Green")
-
+            const bugReportEmbed = createBugReportEmbed(string, interaction)
+            const bugReportedEmbed = createBugReportedEmbed(ID)
             client.channels.cache.get(ID.Channels.Staff).send({ embeds: [bugReportEmbed] })
             interaction.reply({embeds: [bugReportedEmbed], ephemeral: true })
 
@@ -207,11 +164,6 @@ async function startBot() {
         //setCount Command
         else if(commandName == "setcount") {
 
-            const setCountEmbed = new EmbedBuilder()
-            .setTitle("Counting System")
-            .setDescription("Le compte a été défini sur " + setCountNumber + "\nLe prochain nombre est " + (setCountNumber + 1))
-            .setColor("Green")
-
             const string = interaction.options.getString("count")
             const setCountNumber = Number(string)
             count = setCountNumber
@@ -219,22 +171,13 @@ async function startBot() {
             mainDoc.count = setCountNumber
             mainDoc.counter = "Undefined"
             await db.write()
+            const setCountEmbed = createSetCountEmbed(setCountNumber)
             interaction.reply({ embeds: [setCountEmbed] })
 
         }
 
         //Camping System
         else if(commandName == "camp"){
-
-            const notCamperEmbed = new EmbedBuilder()
-            .setTitle("Camping System")
-            .setDescription("Vous n'avez pas le rôle <@&" + ID.Rôles.Campeur + ">")
-            .setColor("Orange")
-
-            const campEmbed = new EmbedBuilder()
-            .setTitle("Camping System")
-            .setDescription("Votre tente a bien été crée")
-            .setColor("Green")
 
             if(interaction.member.roles.cache.get(ID.Rôles.Campeur)){
 
@@ -264,33 +207,16 @@ async function startBot() {
             }
 
             else{
+
+                const notCamperEmbed = createNotCamperEmbed(ID)
                 interaction.reply({ content: { embeds: [notCamperEmbed] }, ephemeral: true })
+
             }
 
         }
 
         //Ask DM System
         else if(commandName == "askdm") {
-
-            const replySendEmbed = new EmbedBuilder()
-            .setTitle("Demande de MP")
-            .setDescription("Votre réponse à été evoyée")
-            .setColor("Green")
-
-            const askWaitEmbed = new EmbedBuilder()
-            .setTitle("AskDM System")
-            .setDescription("Une demande est déjà en cours, merci de patienter")
-            .setColor("Orange")
-
-            const askOpenDMEmbed = new EmbedBuilder()
-            .setTitle("AskDM System")
-            .setDescription("Cet utilisateur accepte les MP de tout le monde")
-            .setColor("Orange")
-
-            const askCloseDMEmbed = new EmbedBuilder()
-            .setTitle("AskDM System")
-            .setDescription("Cette utilisateur n'accepte aucun MP")
-            .setColor("Orange")
 
             if(asker != "Undefined"){
                 interaction.reply({ content: { embeds: [askWaitEmbed] }, ephemeral: true })
@@ -325,16 +251,8 @@ async function startBot() {
 
                 )
 
-                const askDMEmbed = new EmbedBuilder()
-                .setTitle("Demmande de MP")
-                .setDescription("Vous avez reçu une demande de MP de la part de <@" + user + ">")
-                .setColor("Orange")
-
-                const askSendEmbed = new EmbedBuilder()
-                .setTitle("Demmande envoyée")
-                .setDescription("Votre demmande de MP à bien été envoyée à <@" + user + ">")
-                .setColor("Green")
-
+                const askDMEmbed = createAskDMEmbed(user)
+                const askSendEmbed = createAskSendEmbed(user)
                 user.send({ embeds: [askDMEmbed], components: [row] })
                 interaction.reply({ embeds: [askSendEmbed] })
 
@@ -344,18 +262,9 @@ async function startBot() {
 
         else if(interaction.customId == "askdm yes"){
 
-            const noAskEmbed = new EmbedBuilder()
-            .setTitle("AskDM System")
-            .setDescription("Vous n'avez reçu aucune demande")
-            .setColor("Orange")
-
-            const askYesEmbed = new EmbedBuilder()
-            .setTitle("Demande de MP")
-            .setDescription("La demande de MP de <@" + asker + "> à <@" + interaction.user + "> a été acceptée")
-            .setColor("Green")
-
             if(asker != "Undefined"){
                 interaction.reply({ embeds: [replySendEmbed] })
+                const askYesEmbed = createAskYesEmbed(asker, interaction)
                 client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels["Ask DM"]).send({ embeds: [askYesEmbed] })
                 asker = "Undefined"
             }
@@ -369,13 +278,9 @@ async function startBot() {
 
         else if(interaction.customId == "askdm no"){
 
-            const noAskEmbed = new EmbedBuilder()
-            .setTitle("Demande de MP")
-            .setDescription("La demande de MP de <@" + asker + "> à <@" + interaction.user + "> a été refusée")
-            .setColor("Red")
-
             if(asker != "Undefined"){
                 interaction.reply({ embeds: [replySendEmbed] })
+                const askNoEmbed = createAskNoEmbed(asker, interaction)
                 client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels["Ask DM"]).send({  embeds: [askNoEmbed] })
                 asker = "Undefined"
             }
@@ -391,11 +296,6 @@ async function startBot() {
         else if(commandName == "account"){
 
             const subCommand = interaction.options.getSubcommand()
-
-            const DBUpdateEmbed = new EmbedBuilder()
-            .setTitle("TanukiDB")
-            .setDescription("Votre profil à bien été mis à jour")
-            .setColor("Green")
 
             if(subCommand == "minecraft"){
 
