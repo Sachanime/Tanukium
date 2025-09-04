@@ -1,6 +1,6 @@
 {
   "name": "tanukium",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "App for Tanuki Garden",
   "main": "tanuki.js",
   "scripts": {
