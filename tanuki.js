@@ -6,7 +6,7 @@ const ID = require("./ID.json")
 const Token = require("./token.json")
 const package = require("./package.json")
 const packagelock = require("./package-lock.json")
-const { createInfosEmbed, embedErrorCount, embedErrorUser, createBugReportEmbed, createBugReportedEmbed, createSetCountEmbed, createNotCamperEmbed, campEmbed, replySendEmbed, askWaitEmbed, askOpenDMEmbed, askCloseDMEmbed, createAskDMEmbed, createAskSendEmbed, noAskEmbed, createAskYesEmbed, createAskNoEmbed, DBUpdateEmbed } = require("./embeds.js")
+const { createInfosEmbed, embedErrorCount, embedErrorUser, createBugReportEmbed, createBugReportedEmbed, createSetCountEmbed, createNotCamperEmbed, campEmbed, replySendEmbed, askWaitEmbed, askOpenDMEmbed, askCloseDMEmbed, createAskDMEmbed, createAskSendEmbed, noAskEmbed, createAskYesEmbed, createAskNoEmbed, DBUpdateEmbed, createChangelogEmbed, createChangelogErrorEmbed } = require("./embeds.js")
 
 const client = new Client({ intents: [3276799] })
 const adapter = new JSONFile(ID.DB.Main)
@@ -43,6 +43,30 @@ async function startBot() {
         console.log("   ")
 
         console.log("Tanukium : 🟢 - Connected")
+
+        try {
+
+            const response = await fetch("https://api.github.com/repos/Sachanime/Tanukium/releases/latest", {
+
+                headers: {
+                    "Accept": "application/vnd.github+json",
+                    "User-Agent": "DiscordBot"
+                }
+
+            })
+
+            if (!response.ok) throw new Error(`Erreur API GitHub: ${response.status} ${response.statusText}`)
+
+            const data = await response.json()
+            const changelogEmbed = createChangelogEmbed(data)
+            client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels.Changelog).send({ embeds: [changelogEmbed] })
+
+        }
+
+        catch (err) {
+            const changelogErrorEmbed = createChangelogErrorEmbed(err)
+            client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels.Changelog).send({ embeds: [changelogErrorEmbed] })
+        }
 
         const infosEmbed = createInfosEmbed(client, package, packagelock)
         client.guilds.cache.get(ID.Guilds.Tanuki).channels.cache.get(ID.Channels.Staff).send({ embeds: [infosEmbed] })
@@ -313,6 +337,32 @@ async function startBot() {
                 await db.write()
                 interaction.reply({ embeds: [DBUpdateEmbed] })
 
+            }
+
+        }
+
+        else if (commandName == "changelog") {
+
+            try {
+
+                const response = await fetch("https://api.github.com/repos/Sachanime/Tanukium/releases/latest", {
+
+                    headers: {
+                        "Accept": "application/vnd.github+json",
+                        "User-Agent": "DiscordBot"
+                    }
+
+                })
+
+                if (!response.ok) throw new Error(`Erreur API GitHub: ${response.status} ${response.statusText}`)
+                const data = await response.json()
+                const changelogEmbed = createChangelogEmbed(data)
+                interaction.reply({ embeds: [changelogEmbed] })
+            }
+
+            catch (err) {
+                const changelogErrorEmbed = createChangelogErrorEmbed(err)
+                interaction.reply({ embeds: [changelogErrorEmbed] })
             }
 
         }

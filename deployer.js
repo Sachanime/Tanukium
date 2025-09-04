@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, Routes, PermissionFlagsBits, Client } = require("discord.js")
 const { REST } = require("@discordjs/rest")
-const ID = require("./ID.json")
+const ID = require("./ID-beta.json")
+const Token = require("./token.json")
 
 const commands = [
 
@@ -13,11 +14,6 @@ const commands = [
         .setRequired(true)
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
-
-    new SlashCommandBuilder()
-    .setName("connect")
-    .setDescription("Lance une connexion à la base de donnée"),
-
 
     new SlashCommandBuilder()
     .setName("askdm")
@@ -71,12 +67,16 @@ const commands = [
             .setRequired(true)    
         )
 
-    )
+    ),
+
+    new SlashCommandBuilder()
+    .setName("changelog")
+    .setDescription("Affichier le changelog")
 
 ]
 
 .map(command => command.toJSON())
 
-const rest = new REST({ version: "10" }).setToken(ID.Tokens.Tanukium)
+const rest = new REST({ version: "10" }).setToken(Token.Beta)
 
 rest.put(Routes.applicationCommands(ID.Clients.Tanukium), { body: commands }).then((data) => console.log(`Sucessfully registered ${data.length} application commands`)).catch(console.error)
